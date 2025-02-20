@@ -1,14 +1,35 @@
-import { Routes, Route } from "react-router-dom";
-import CreateEventForm from "./components/CreateEventForm";
-import AdminEvents from "./pages/AdminEvents";
+import { Route, Routes, Navigate } from "react-router-dom";
+import LoginPage from "./pages/admin/Login";
+import RegisterPage from "./pages/admin/Register";
+import AdminEvents from "./pages/admin/AdminEvents";
+import ProtectedRoute from "./components/ProtectedRoute";
+import UserEvents from "./pages/public/UserEvents";
 
-function App() {
+const App = () => {
   return (
     <Routes>
-      <Route path="/" element={<CreateEventForm />} />
-      <Route path="/admin/events" element={<AdminEvents />} />
+      {/* Authentication Routes */}
+      <Route path="/" element={<LoginPage />} />
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/register" element={<RegisterPage />} />
+
+      {/* Admin Portal (Protected Routes) */}
+      <Route
+        path="/admin/events"
+        element={
+          <ProtectedRoute>
+            <AdminEvents />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Public Events Page */}
+      <Route path="/events" element={<UserEvents />} />
+
+      {/* Redirect unknown routes to login */}
+      <Route path="*" element={<Navigate to="/" />} />
     </Routes>
   );
-}
+};
 
 export default App;
