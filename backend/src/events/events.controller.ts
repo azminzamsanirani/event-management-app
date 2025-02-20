@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Patch, Delete, Param, Body, UseGuards, UploadedFile, UseInterceptors, Query } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Delete, Param, Body, UseGuards, UploadedFile, UseInterceptors, Query, Request, UnauthorizedException } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { EventsService } from './events.service';
@@ -53,6 +53,21 @@ export class EventsController {
         const fileUrl = file ? `/uploads/${file.filename}` : undefined;
         return this.eventsService.updateEvent(id, { ...updateEventDto, thumbnail: fileUrl });
     }
+
+    @Delete(':id')
+    @UseGuards(AuthGuard('jwt'))
+    async delete(
+        @Param('id') id: string,
+        @Body('password') password: string,
+        @Request() req
+    ) {
+        if (!req.user || !req.user.userId) {
+            throw new UnauthorizedException('User not authenticated');
+        }
+    
+        return this.eventsService.deleteEvent(id, password, req.user.userId);
+    }
+      
 }
 
 @Controller('public/events') // 🔓 Public endpoint
